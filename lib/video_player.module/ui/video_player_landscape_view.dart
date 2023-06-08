@@ -1,9 +1,9 @@
-import 'package:ajay_kumar_flutter_task/video_player.module/video_player_potrait_view.dart';
+import 'package:ajay_kumar_flutter_task/video_player.module/provider/video_player_controller.dart';
+import 'package:ajay_kumar_flutter_task/video_player.module/ui/widgets/overlay_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-import 'video_player_controller.dart';
 
 class VideoPlayerLandscapeView extends StatefulWidget {
   const VideoPlayerLandscapeView({Key? key}) : super(key: key);

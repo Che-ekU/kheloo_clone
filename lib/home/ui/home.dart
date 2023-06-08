@@ -1,8 +1,9 @@
 import 'dart:async';
 
+import 'package:ajay_kumar_flutter_task/home/ui/jackpot.dart';
 import 'package:ajay_kumar_flutter_task/kheloo-app/app_provider.dart';
-import 'package:ajay_kumar_flutter_task/video_player.module/video_player_controller.dart';
-import 'package:ajay_kumar_flutter_task/video_player.module/video_player_potrait_view.dart';
+import 'package:ajay_kumar_flutter_task/video_player.module/provider/video_player_controller.dart';
+import 'package:ajay_kumar_flutter_task/video_player.module/ui/video_player_portrait_view.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<VideoPlayerProvider>().setPortrait();
+    // AppProvider appProvider = context.read<AppProvider>();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -75,7 +77,7 @@ class Home extends StatelessWidget {
         ),
         height: 100,
         child: Row(
-          children: const [
+          children: [
             _BottomMenuItem(
               details: BottomMenuItemDetails(
                 icon: Icons.speaker,
@@ -154,12 +156,131 @@ class Home extends StatelessWidget {
               height: 5,
               width: 200,
             ),
-            const SizedBox(height: 10),
+            const _WinnerContainer(),
+            const SizedBox(height: 15),
             const CustomVideoPlayer(),
             const SizedBox(height: 200),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _WinnerContainer extends StatefulWidget {
+  const _WinnerContainer();
+
+  @override
+  State<_WinnerContainer> createState() => _WinnerContainerState();
+}
+
+class _WinnerContainerState extends State<_WinnerContainer> {
+  late Timer _timer;
+
+  void startTimer() {
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        if (timer.tick % 2 == 0) {
+          context.read<AppProvider>().getRandomUniqueNumbers();
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        color: Colors.amber,
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          color: Colors.purple,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(22.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  WinnerCard(index: 0),
+                  SizedBox(height: 20),
+                  WinnerCard(index: 1),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  WinnerCard(index: 2),
+                  SizedBox(height: 20),
+                  WinnerCard(index: 3),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class WinnerCard extends StatelessWidget {
+  const WinnerCard({
+    super.key,
+    required this.index,
+  });
+
+  final int index;
+  @override
+  Widget build(BuildContext context) {
+    AppProvider appProvider = context.read<AppProvider>();
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(3),
+          decoration:
+              const BoxDecoration(shape: BoxShape.circle, color: Colors.orange),
+          child: const CircleAvatar(
+            backgroundColor: Colors.purple,
+            child: Icon(Icons.person),
+          ),
+        ),
+        const SizedBox(
+          width: 10,
+        ),
+        Column(
+          children: [
+            Text.rich(
+              TextSpan(
+                text: appProvider
+                    .winnerDetails[appProvider.winnersDisplayIndex[index]].name,
+                children: [],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -295,115 +416,8 @@ class _TopSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 80),
-        const _Jackpot(),
+        const Jackpot(),
         const SizedBox(height: 30),
-      ],
-    );
-  }
-}
-
-class _Jackpot extends StatefulWidget {
-  const _Jackpot();
-
-  @override
-  State<_Jackpot> createState() => _JackpotState();
-}
-
-class _JackpotState extends State<_Jackpot> {
-  late Timer _timer;
-  final ValueNotifier<int> jackpotAmount = ValueNotifier<int>(92542627);
-
-  List<String> jackpotAmountString = [];
-
-  void startTimer() {
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) {
-        if (jackpotAmount.value == 99999999) {
-          jackpotAmount.value = 99999900;
-        } else {
-          jackpotAmount.value++;
-        }
-        jackpotAmountString = jackpotAmount.value.toString().split("");
-        setState(() {});
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    jackpotAmountString = jackpotAmount.value.toString().split("");
-    startTimer();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: const Alignment(0.01, 0.30),
-      children: [
-        Image.asset(
-          "assets/images/jackpot.png",
-          width: 320,
-        ),
-        Container(
-          decoration: const BoxDecoration(color: Colors.amberAccent),
-          height: 67,
-          width: 270,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              for (int i = 0; i < (["₹"] + jackpotAmountString).length; i++)
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5, horizontal: 1),
-                      margin: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.amber.withOpacity(0.8),
-                            Colors.amber,
-                          ],
-                        ),
-                        border: const Border(
-                          bottom: BorderSide(color: Colors.black, width: 1.5),
-                          right: BorderSide(color: Colors.black, width: 1.5),
-                          left: BorderSide(color: Colors.black, width: 1.5),
-                        ),
-                      ),
-                      child: Text(
-                        i == 0 ? "₹" : jackpotAmountString[i - 1],
-                        style: const TextStyle(
-                          color: Color.fromARGB(255, 210, 14, 0),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 30,
-                        ),
-                      ),
-                    ),
-                    if (i != jackpotAmountString.length)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 1),
-                        child: Container(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                      ),
-                  ],
-                ),
-            ],
-          ),
-        ),
       ],
     );
   }
