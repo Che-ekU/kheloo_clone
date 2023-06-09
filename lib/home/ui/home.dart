@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:ajay_kumar_flutter_task/home/ui/game_section.dart';
 import 'package:ajay_kumar_flutter_task/home/ui/jackpot.dart';
 import 'package:ajay_kumar_flutter_task/kheloo-app/app_provider.dart';
 import 'package:ajay_kumar_flutter_task/video_player.module/provider/video_player_controller.dart';
@@ -159,6 +159,7 @@ class Home extends StatelessWidget {
             const _WinnerContainer(),
             const SizedBox(height: 15),
             const CustomVideoPlayer(),
+            const GameSection(),
             const SizedBox(height: 200),
           ],
         ),
@@ -178,12 +179,12 @@ class _WinnerContainerState extends State<_WinnerContainer> {
   late Timer _timer;
 
   void startTimer() {
+    AppProvider appProvider = context.read<AppProvider>();
     _timer = Timer.periodic(
       const Duration(seconds: 1),
       (Timer timer) {
         if (timer.tick % 2 == 0) {
-          context.read<AppProvider>().getRandomUniqueNumbers();
-          setState(() {});
+          appProvider.getRandomUniqueNumbers();
         }
       },
     );
@@ -205,7 +206,7 @@ class _WinnerContainerState extends State<_WinnerContainer> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+      margin: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         color: Colors.amber,
@@ -213,30 +214,38 @@ class _WinnerContainerState extends State<_WinnerContainer> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          color: Colors.purple,
+          gradient: const LinearGradient(colors: [
+            Color.fromARGB(255, 95, 0, 112),
+            Color.fromARGB(255, 104, 62, 177),
+            Color.fromARGB(255, 95, 0, 112),
+          ]),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(22.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  WinnerCard(index: 0),
-                  SizedBox(height: 20),
-                  WinnerCard(index: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
+          child: Consumer(
+            builder: (context, AppProvider appProvider, child) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      WinnerCard(index: appProvider.winnersDisplayIndex[0]),
+                      const SizedBox(height: 20),
+                      WinnerCard(index: appProvider.winnersDisplayIndex[1]),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      WinnerCard(index: appProvider.winnersDisplayIndex[2]),
+                      const SizedBox(height: 20),
+                      WinnerCard(index: appProvider.winnersDisplayIndex[3]),
+                    ],
+                  ),
                 ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  WinnerCard(index: 2),
-                  SizedBox(height: 20),
-                  WinnerCard(index: 3),
-                ],
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -262,24 +271,47 @@ class WinnerCard extends StatelessWidget {
           decoration:
               const BoxDecoration(shape: BoxShape.circle, color: Colors.orange),
           child: const CircleAvatar(
-            backgroundColor: Colors.purple,
-            child: Icon(Icons.person),
+            backgroundColor: Color.fromARGB(255, 95, 0, 112),
+            child: Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
         ),
         const SizedBox(
           width: 10,
         ),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text.rich(
+              style: const TextStyle(color: Colors.white, fontSize: 16),
               TextSpan(
-                text: appProvider
-                    // .winnerDetails[appProvider.winnersDisplayIndex[index]].name,
-                    .winnerDetails[index]
-                    .name,
-                children: [],
+                text: appProvider.winnerDetails[index].name,
+                children: [
+                  const TextSpan(
+                    text: " ₹",
+                    style: TextStyle(color: Colors.orange),
+                  ),
+                  const TextSpan(
+                    text: " ",
+                    style: TextStyle(fontSize: 7),
+                  ),
+                  TextSpan(
+                    text: appProvider.winnerDetails[index].amount,
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: 2),
+            Text(
+              appProvider.winnerDetails[index].time ?? "",
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 12,
+              ),
+            )
           ],
         ),
       ],

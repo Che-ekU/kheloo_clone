@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class AppProvider extends ChangeNotifier {
   int presentCarouselIndex = 0;
-  List<int> winnersDisplayIndex = [];
+  List<int> winnersDisplayIndex = [3, 6, 8, 9];
   List<WinnerDetails> winnerDetails = [
     WinnerDetails(name: "Ajay"),
     WinnerDetails(name: "Mega"),
@@ -17,20 +17,28 @@ class AppProvider extends ChangeNotifier {
     WinnerDetails(name: "Dhana"),
     WinnerDetails(name: "Thilo"),
   ];
+
+  List<bool> expansionStatus = [false,false,false,];
+
+  List<String> gameImages = [
+    'https://luckmedia.link/roy_teen_patti/thumb.webp',
+    'https://luckmedia.link/tvb_teen_patti/thumb.webp',
+    'https://luckmedia.link/pltl_blackjack_7/thumb.webp',
+    "https://cdn.hub88.io/spribe/sbe_aviator.png",
+    'https://luckmedia.link/pltl_andar_bahar/thumb.webp',
+    'https://luckmedia.link/evo_american_roulette/thumb.webp',
+  ];
   List<int> getRandomUniqueNumbers() {
     Random random = Random();
-    List<int> numbers = [];
-
-    while (numbers.length < 4) {
+    winnersDisplayIndex = [];
+    while (winnersDisplayIndex.length < 4) {
       int randomNumber = random.nextInt(10);
-      if (!numbers.contains(randomNumber)) {
-        numbers.add(randomNumber);
+      if (!winnersDisplayIndex.contains(randomNumber)) {
+        winnersDisplayIndex.add(randomNumber);
       }
     }
-
-    print(numbers);
-    winnersDisplayIndex = numbers;
-    return numbers;
+    notifyListeners();
+    return winnersDisplayIndex;
   }
 
   notify() => notifyListeners();
@@ -56,10 +64,11 @@ class BottomMenuItemDetails {
 class WinnerDetails {
   WinnerDetails({
     required this.name,
-    this.time,
-    this.amount,
-  });
+    String? time,
+    String? amount,
+  })  : time = "${Random().nextInt(10) + 2} seconds ago",
+        amount = "${Random().nextInt(9999)}";
   final String name;
-  String? time = "${Random().nextInt(10) + 2} seconds ago";
-  String? amount = "${Random().nextInt(9999)}";
+  final String? time;
+  final String? amount;
 }
