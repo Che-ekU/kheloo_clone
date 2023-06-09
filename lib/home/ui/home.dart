@@ -274,7 +274,9 @@ class WinnerCard extends StatelessWidget {
             Text.rich(
               TextSpan(
                 text: appProvider
-                    .winnerDetails[appProvider.winnersDisplayIndex[index]].name,
+                    // .winnerDetails[appProvider.winnersDisplayIndex[index]].name,
+                    .winnerDetails[index]
+                    .name,
                 children: [],
               ),
             ),
